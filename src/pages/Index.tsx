@@ -8,6 +8,7 @@ import StatsView from "@/components/views/StatsView";
 import NetworkView from "@/components/views/NetworkView";
 import { usePartnerCommissions, usePartnerNetwork } from "@/hooks/useGoogleSheets";
 import { googleSheetsService } from "@/services/googleSheetsService";
+import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 interface TelegramUser {
   id: string;
@@ -22,6 +23,7 @@ const Index = () => {
   const [loggedOut, setLoggedOut] = useState(false);
   const [forceRefresh, setForceRefresh] = useState(0);
   const [isExistingUserLogin, setIsExistingUserLogin] = useState(false);
+  const [showUserNotFoundDialog, setShowUserNotFoundDialog] = useState(false);
 
   useEffect(() => {
     console.log('=== TELEGRAM DATA INITIALIZATION ===');
@@ -159,6 +161,12 @@ const Index = () => {
     setCurrentView("personalData");
   };
 
+  const handleUserNotFoundDialogClose = () => {
+    setShowUserNotFoundDialog(false);
+    setIsExistingUserLogin(false);
+    setCurrentView("personalData");
+  };
+
   const handleExistingUserLogin = async () => {
     console.log('Existing user login initiated for Telegram ID:', telegramUser?.id);
     setLoggedOut(false);
@@ -173,15 +181,14 @@ const Index = () => {
           // Пользователь найден, обновляем данные
           setForceRefresh(prev => prev + 1);
         } else {
-          console.log('No existing partner found, user needs to register');
-          // Пользователь не найден, показываем форму регистрации
-          setIsExistingUserLogin(false);
-          setCurrentView("registration");
+          console.log('No existing partner found, showing warning and redirecting to registration');
+          // Пользователь не найден, показываем диалог
+          setShowUserNotFoundDialog(true);
         }
       } catch (error) {
         console.error('Error checking existing user:', error);
-        setIsExistingUserLogin(false);
-        setCurrentView("registration");
+        // Показываем диалог об ошибке
+        setShowUserNotFoundDialog(true);
       }
     }
   };
@@ -252,6 +259,7 @@ const Index = () => {
         <PersonalDataView
           onComplete={handlePersonalDataComplete}
           loading={partnerLoading}
+          telegramUser={telegramUser}
         />
       );
     }
@@ -344,19 +352,39 @@ const Index = () => {
       <PersonalDataView
         onComplete={handlePersonalDataComplete}
         loading={partnerLoading}
+        telegramUser={telegramUser}
       />
     );
   }
 
   // По умолчанию показываем экран ввода промокода
   return (
-    <RegistrationView
-      telegramUser={telegramUser}
-      onPromoCodeSuccess={handlePromoCodeSuccess}
-      onExistingUserLogin={handleExistingUserLogin}
-      onNewUserRegistration={handleNewUserRegistration}
-      partnerLoading={partnerLoading}
-    />
+    <>
+      <RegistrationView
+        telegramUser={telegramUser}
+        onPromoCodeSuccess={handlePromoCodeSuccess}
+        onExistingUserLogin={handleExistingUserLogin}
+        onNewUserRegistration={handleNewUserRegistration}
+        partnerLoading={partnerLoading}
+      />
+      
+      <AlertDialog open={showUserNotFoundDialog} onOpenChange={setShowUserNotFoundDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Пользователь не найден</AlertDialogTitle>
+            <AlertDialogDescription>
+              Аккаунт с вашим Telegram ID не найден в базе данных. 
+              Создаем новый аккаунт для вас.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={handleUserNotFoundDialogClose}>
+              Создать аккаунт
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 

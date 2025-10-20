@@ -1,22 +1,53 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 
+interface TelegramUser {
+  id: string;
+  first_name: string;
+  username?: string;
+}
+
 interface PersonalDataViewProps {
   onComplete: (data: { firstName: string; lastName: string; phone: string; email: string }) => void;
   loading: boolean;
+  telegramUser?: TelegramUser | null;
 }
 
-const PersonalDataView = ({ onComplete, loading }: PersonalDataViewProps) => {
+const PersonalDataView = ({ onComplete, loading, telegramUser }: PersonalDataViewProps) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const { toast } = useToast();
+
+  // Автозаполнение данных из Telegram
+  useEffect(() => {
+    if (telegramUser) {
+      console.log('Auto-filling data from Telegram user:', telegramUser);
+      
+      // Заполняем имя из Telegram
+      if (telegramUser.first_name) {
+        setFirstName(telegramUser.first_name);
+      }
+      
+      // Пытаемся получить номер телефона из Telegram Web App
+      if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+        const user = window.Telegram.WebApp.initDataUnsafe.user;
+        console.log('Full Telegram user data:', user);
+        
+        // Если есть номер телефона в данных Telegram
+        if (user.phone_number) {
+          setPhone(user.phone_number);
+          console.log('Auto-filled phone from Telegram:', user.phone_number);
+        }
+      }
+    }
+  }, [telegramUser]);
 
   const handleSubmit = () => {
     console.log('=== PERSONAL DATA SUBMIT ===');
