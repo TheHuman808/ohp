@@ -79,7 +79,7 @@ export const usePartner = (telegramId: string, forceRefresh: number = 0) => {
         phone: personalData.phone,
         email: personalData.email,
         username,
-        inviterCode
+        inviterCode: inviterCode && inviterCode.trim() !== '' ? inviterCode : undefined // Send undefined instead of empty string
       });
 
       console.log('Registration result:', result);
