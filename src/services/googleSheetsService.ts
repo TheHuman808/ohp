@@ -381,7 +381,18 @@ class GoogleSheetsService {
       if (response.ok) {
         const result = await response.json();
         console.log('Apps Script response:', result);
-        return { success: true, result };
+        console.log('Apps Script response type:', typeof result);
+        console.log('Apps Script response keys:', Object.keys(result));
+        
+        // Проверяем, что результат действительно успешный
+        if (result.success === true) {
+          console.log('✓ Apps Script confirmed success');
+          return { success: true, result };
+        } else {
+          console.error('✗ Apps Script returned success: false');
+          console.error('Apps Script error:', result.error);
+          return { success: false, error: result.error || 'Apps Script returned success: false' };
+        }
       } else {
         const errorText = await response.text();
         console.error('Apps Script HTTP error:', {
@@ -480,18 +491,31 @@ class GoogleSheetsService {
       
         if (writeResult.success) {
           console.log('✓ New partner successfully registered via Apps Script');
+          console.log('Apps Script result details:', writeResult.result);
           
           // Дополнительная задержка для Google Sheets
           console.log('Waiting for Google Sheets to update...');
-          await new Promise(resolve => setTimeout(resolve, 3000));
+          await new Promise(resolve => setTimeout(resolve, 5000)); // Увеличил до 5 секунд
           
           // Проверяем, что данные действительно записались
           console.log('Verifying registration in Google Sheets...');
           const verification = await this.getPartner(partnerData.telegramId);
           if (verification) {
             console.log('✓ Registration verified in Google Sheets');
+            console.log('Verified partner data:', verification);
           } else {
             console.log('⚠ Registration not yet visible in Google Sheets (may take longer)');
+            console.log('This might indicate an issue with the Apps Script or Google Sheets API');
+            
+            // Попробуем еще раз через дополнительную задержку
+            console.log('Trying one more verification after additional delay...');
+            await new Promise(resolve => setTimeout(resolve, 5000));
+            const secondVerification = await this.getPartner(partnerData.telegramId);
+            if (secondVerification) {
+              console.log('✓ Registration verified on second attempt');
+            } else {
+              console.log('✗ Registration still not visible after 10 seconds total');
+            }
           }
           
           return { success: true, promoCode: promoCode };
