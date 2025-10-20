@@ -199,7 +199,30 @@ class GoogleSheetsService {
       
       console.log('GET request URL:', url.replace(this.apiKey, 'API_KEY_HIDDEN'));
       
-      const response = await fetch(url);
+      // Retry logic for network errors
+      let response;
+      let retryCount = 0;
+      const maxRetries = 3;
+      
+      while (retryCount < maxRetries) {
+        try {
+          response = await fetch(url);
+          break; // Success, exit retry loop
+        } catch (error) {
+          retryCount++;
+          console.warn(`Network error (attempt ${retryCount}/${maxRetries}):`, error);
+          
+          if (retryCount < maxRetries) {
+            // Wait before retry (exponential backoff)
+            const delay = Math.pow(2, retryCount) * 1000;
+            console.log(`Retrying in ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          } else {
+            console.error('Max retries reached, giving up');
+            throw error;
+          }
+        }
+      }
       
       if (!response.ok) {
         console.error('Failed to fetch partner data:', response.status, response.statusText);
@@ -324,7 +347,30 @@ class GoogleSheetsService {
         bodyLength: requestOptions.body.length
       });
 
-      const response = await fetch(this.webAppUrl, requestOptions);
+      // Retry logic for Apps Script requests
+      let response;
+      let retryCount = 0;
+      const maxRetries = 3;
+      
+      while (retryCount < maxRetries) {
+        try {
+          response = await fetch(this.webAppUrl, requestOptions);
+          break; // Success, exit retry loop
+        } catch (error) {
+          retryCount++;
+          console.warn(`Apps Script network error (attempt ${retryCount}/${maxRetries}):`, error);
+          
+          if (retryCount < maxRetries) {
+            // Wait before retry (exponential backoff)
+            const delay = Math.pow(2, retryCount) * 1000;
+            console.log(`Retrying Apps Script request in ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          } else {
+            console.error('Max retries reached for Apps Script, giving up');
+            throw error;
+          }
+        }
+      }
       
       clearTimeout(timeoutId);
 
@@ -474,9 +520,32 @@ class GoogleSheetsService {
       
       const range = 'Начисления!A:G';
       const encodedRange = encodeURIComponent(range);
-      const response = await fetch(
-        `${this.baseUrl}/${this.spreadsheetId}/values/${encodedRange}?key=${this.apiKey}`
-      );
+      const url = `${this.baseUrl}/${this.spreadsheetId}/values/${encodedRange}?key=${this.apiKey}`;
+      
+      // Retry logic for network errors
+      let response;
+      let retryCount = 0;
+      const maxRetries = 3;
+      
+      while (retryCount < maxRetries) {
+        try {
+          response = await fetch(url);
+          break; // Success, exit retry loop
+        } catch (error) {
+          retryCount++;
+          console.warn(`Commissions network error (attempt ${retryCount}/${maxRetries}):`, error);
+          
+          if (retryCount < maxRetries) {
+            // Wait before retry (exponential backoff)
+            const delay = Math.pow(2, retryCount) * 1000;
+            console.log(`Retrying commissions fetch in ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          } else {
+            console.error('Max retries reached for commissions, giving up');
+            throw error;
+          }
+        }
+      }
       
       if (!response.ok) {
         console.error('Failed to fetch commissions:', response.status);
@@ -544,9 +613,32 @@ class GoogleSheetsService {
 
       const range = 'Партнеры!A:M';
       const encodedRange = encodeURIComponent(range);
-      const response = await fetch(
-        `${this.baseUrl}/${this.spreadsheetId}/values/${encodedRange}?key=${this.apiKey}`
-      );
+      const url = `${this.baseUrl}/${this.spreadsheetId}/values/${encodedRange}?key=${this.apiKey}`;
+      
+      // Retry logic for network errors
+      let response;
+      let retryCount = 0;
+      const maxRetries = 3;
+      
+      while (retryCount < maxRetries) {
+        try {
+          response = await fetch(url);
+          break; // Success, exit retry loop
+        } catch (error) {
+          retryCount++;
+          console.warn(`Network data fetch error (attempt ${retryCount}/${maxRetries}):`, error);
+          
+          if (retryCount < maxRetries) {
+            // Wait before retry (exponential backoff)
+            const delay = Math.pow(2, retryCount) * 1000;
+            console.log(`Retrying network fetch in ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          } else {
+            console.error('Max retries reached for network data, giving up');
+            throw error;
+          }
+        }
+      }
       
       if (!response.ok) {
         console.error('Failed to fetch network data:', response.status);
