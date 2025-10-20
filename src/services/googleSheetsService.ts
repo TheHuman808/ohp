@@ -432,13 +432,27 @@ class GoogleSheetsService {
       
       console.log('Apps Script response:', writeResult);
       
-      if (writeResult.success) {
-        console.log('✓ New partner successfully registered via Apps Script');
-        return { success: true, promoCode: promoCode };
-      } else {
-        console.error('✗ Apps Script registration failed:', writeResult.error);
-        return { success: false, error: writeResult.error || 'Ошибка при записи в Google Sheets' };
-      }
+        if (writeResult.success) {
+          console.log('✓ New partner successfully registered via Apps Script');
+          
+          // Дополнительная задержка для Google Sheets
+          console.log('Waiting for Google Sheets to update...');
+          await new Promise(resolve => setTimeout(resolve, 3000));
+          
+          // Проверяем, что данные действительно записались
+          console.log('Verifying registration in Google Sheets...');
+          const verification = await this.getPartner(partnerData.telegramId);
+          if (verification) {
+            console.log('✓ Registration verified in Google Sheets');
+          } else {
+            console.log('⚠ Registration not yet visible in Google Sheets (may take longer)');
+          }
+          
+          return { success: true, promoCode: promoCode };
+        } else {
+          console.error('✗ Apps Script registration failed:', writeResult.error);
+          return { success: false, error: writeResult.error || 'Ошибка при записи в Google Sheets' };
+        }
       
     } catch (error) {
       console.error('=== REGISTER PARTNER ERROR ===');
