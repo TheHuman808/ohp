@@ -85,9 +85,13 @@ export const usePartner = (telegramId: string, forceRefresh: number = 0) => {
       console.log('Registration result:', result);
 
       if (result.success && result.promoCode) {
-        console.log('New partner registration successful, refreshing data...');
+        console.log('New partner registration successful, waiting before refreshing data...');
+        
+        // Ждем немного, чтобы данные успели записаться в Google Sheets
+        await new Promise(resolve => setTimeout(resolve, 2000));
         
         // Принудительно обновляем данные после успешной регистрации
+        console.log('Refreshing partner data...');
         await fetchPartner();
         
         return { success: true, promoCode: result.promoCode };

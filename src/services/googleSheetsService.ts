@@ -388,10 +388,15 @@ class GoogleSheetsService {
       
       // Проверяем промокод пригласившего (только если он указан)
       if (partnerData.inviterCode && partnerData.inviterCode.trim() !== '') {
+        console.log('Validating inviter code:', partnerData.inviterCode);
         const isValidInviter = await this.validatePromoCode(partnerData.inviterCode);
         if (!isValidInviter) {
+          console.log('Invalid inviter code, registration failed');
           return { success: false, error: 'Неверный промокод пригласившего партнера' };
         }
+        console.log('Inviter code is valid');
+      } else {
+        console.log('No inviter code provided, skipping validation');
       }
 
       // Генерируем уникальный промокод для нового партнера
@@ -422,13 +427,16 @@ class GoogleSheetsService {
       });
 
       // Записываем нового партнера через Apps Script
+      console.log('Sending data to Apps Script...');
       const writeResult = await this.writeToAppsScript('registerPartner', newPartnerData);
       
+      console.log('Apps Script response:', writeResult);
+      
       if (writeResult.success) {
-        console.log('New partner successfully registered via Apps Script');
+        console.log('✓ New partner successfully registered via Apps Script');
         return { success: true, promoCode: promoCode };
       } else {
-        console.error('Apps Script registration failed:', writeResult.error);
+        console.error('✗ Apps Script registration failed:', writeResult.error);
         return { success: false, error: writeResult.error || 'Ошибка при записи в Google Sheets' };
       }
       

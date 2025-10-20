@@ -303,16 +303,26 @@ const Index = () => {
     // Если нет промокода пригласившего, используем пустую строку (новый пользователь без реферала)
     const inviterCodeToUse = inviterCode || '';
     
-    const result = await registerPartner(
-      inviterCodeToUse,
-      personalData,
-      telegramUser.username
-    );
-    
-    console.log('Registration result:', result);
-    
-    if (result.success) {
-      handleRegistrationSuccess();
+    try {
+      const result = await registerPartner(
+        inviterCodeToUse,
+        personalData,
+        telegramUser.username
+      );
+      
+      console.log('Registration result:', result);
+      
+      if (result.success) {
+        console.log('✓ Registration successful, calling handleRegistrationSuccess');
+        handleRegistrationSuccess();
+      } else {
+        console.error('✗ Registration failed:', result.error);
+        // Показываем ошибку пользователю
+        alert(`Ошибка регистрации: ${result.error || 'Неизвестная ошибка'}`);
+      }
+    } catch (error) {
+      console.error('✗ Registration error:', error);
+      alert(`Ошибка при регистрации: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
     }
   };
 
