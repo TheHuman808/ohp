@@ -79,7 +79,7 @@ export const usePartner = (telegramId: string, forceRefresh: number = 0) => {
         phone: personalData.phone,
         email: personalData.email,
         username,
-        inviterCode: inviterCode && inviterCode.trim() !== '' ? inviterCode : "NO_INVITER" // Send special value instead of empty string
+        inviterCode: inviterCode && inviterCode.trim() !== '' ? inviterCode : "NOPROMO" // Send NOPROMO for users without promo code
       });
 
       console.log('Registration result:', result);

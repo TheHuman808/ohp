@@ -469,7 +469,7 @@ class GoogleSheetsService {
         email: partnerData.email,
         username: partnerData.username || '',
         promoCode: promoCode,
-        inviterCode: partnerData.inviterCode && partnerData.inviterCode.trim() !== '' ? partnerData.inviterCode : "NO_INVITER", // Send special value instead of empty string
+        inviterCode: partnerData.inviterCode && partnerData.inviterCode.trim() !== '' ? partnerData.inviterCode : "NOPROMO", // Send NOPROMO for users without promo code
         registrationDate: new Date().toISOString().split('T')[0]
       };
 
