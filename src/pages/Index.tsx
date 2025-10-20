@@ -109,44 +109,82 @@ const Index = () => {
       return userData;
     };
 
-    // Инициализируем Telegram Web App
-    const isTelegramWebApp = initializeTelegramWebApp();
-    
-    // Получаем данные пользователя
-    const userData = getTelegramUserData();
-    
-    if (userData) {
-      console.log('✓ Using real Telegram user data');
-      setTelegramUser(userData);
-      return;
-    }
+    // Функция для инициализации с задержкой
+    const initializeWithDelay = () => {
+      // Инициализируем Telegram Web App
+      const isTelegramWebApp = initializeTelegramWebApp();
+      
+      // Получаем данные пользователя
+      const userData = getTelegramUserData();
+      
+      if (userData) {
+        console.log('✓ Using real Telegram user data');
+        setTelegramUser(userData);
+        return;
+      }
 
-    // Fallback - проверяем URL параметры (для тестирования)
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get('id');
-    const first_name = params.get('first_name');
-    const username = params.get('username');
+      // Fallback - проверяем URL параметры (для тестирования)
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+      const first_name = params.get('first_name');
+      const username = params.get('username');
 
-    if (id && first_name) {
-      console.log('✓ Telegram data from URL params:', { id, first_name, username });
+      if (id && first_name) {
+        console.log('✓ Telegram data from URL params:', { id, first_name, username });
+        setTelegramUser({
+          id,
+          first_name,
+          username: username || undefined
+        });
+        return;
+      }
+
+      // Если Telegram Web App доступен, но данных нет - ждем еще
+      if (isTelegramWebApp) {
+        console.log('Telegram Web App available but no user data yet, waiting...');
+        setTimeout(() => {
+          const delayedUserData = getTelegramUserData();
+          if (delayedUserData) {
+            console.log('✓ Using delayed Telegram user data');
+            setTelegramUser(delayedUserData);
+          } else {
+            console.warn('⚠ Still no Telegram data after delay, using test user');
+            setTestUser();
+          }
+        }, 1000);
+      } else {
+        console.warn('⚠ No Telegram Web App available, using test user');
+        setTestUser();
+      }
+    };
+
+    // Функция для установки тестового пользователя
+    const setTestUser = () => {
+      const uniqueTestId = `test_user_${Math.random().toString(36).substr(2, 9)}`;
+      console.warn('⚠ No real Telegram data available. Using test user:', uniqueTestId);
+      console.warn('⚠ Приложение должно быть запущено через Telegram бота для получения реальных данных');
+      
       setTelegramUser({
-        id,
-        first_name,
-        username: username || undefined
+        id: uniqueTestId,
+        first_name: 'Тестовый пользователь',
+        username: 'testuser'
       });
-      return;
-    }
+    };
 
-    // Для локальной разработки - генерируем уникальный тестовый ID
-    const uniqueTestId = `test_user_${Math.random().toString(36).substr(2, 9)}`;
-    console.warn('⚠ No real Telegram data available. Using test user:', uniqueTestId);
-    console.warn('⚠ Приложение должно быть запущено через Telegram бота для получения реальных данных');
+    // Логируем состояние Telegram Web App
+    console.log('=== TELEGRAM WEB APP STATUS ===');
+    console.log('window.Telegram exists:', !!window.Telegram);
+    console.log('window.Telegram.WebApp exists:', !!window.Telegram?.WebApp);
+    console.log('initDataUnsafe exists:', !!window.Telegram?.WebApp?.initDataUnsafe);
+    console.log('initDataUnsafe.user exists:', !!window.Telegram?.WebApp?.initDataUnsafe?.user);
+    console.log('initData exists:', !!window.Telegram?.WebApp?.initData);
     
-    setTelegramUser({
-      id: uniqueTestId,
-      first_name: 'Тестовый пользователь',
-      username: 'testuser'
-    });
+    if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+      console.log('Current user data:', window.Telegram.WebApp.initDataUnsafe.user);
+    }
+    
+    // Запускаем инициализацию с небольшой задержкой
+    setTimeout(initializeWithDelay, 100);
   }, []);
 
   const { 

@@ -176,6 +176,9 @@ const RegistrationView = ({ telegramUser, onPromoCodeSuccess, onExistingUserLogi
                 {window.Telegram?.WebApp?.initDataUnsafe?.user?.phone_number && (
                   <p>Телефон: {window.Telegram.WebApp.initDataUnsafe.user.phone_number}</p>
                 )}
+                <p className="text-xs text-gray-400 mt-2">
+                  {displayId.startsWith('test_user_') ? '⚠ Тестовые данные' : '✓ Реальные данные Telegram'}
+                </p>
               </div>
               {window.Telegram?.WebApp ? (
                 <div className="flex items-center justify-center text-green-600 mt-2">

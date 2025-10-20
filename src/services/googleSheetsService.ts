@@ -411,6 +411,16 @@ class GoogleSheetsService {
         registrationDate: new Date().toISOString().split('T')[0]
       };
 
+      console.log('=== SENDING DATA TO GOOGLE SHEETS ===');
+      console.log('Partner data to register:', newPartnerData);
+      console.log('Telegram ID:', partnerData.telegramId);
+      console.log('Real Telegram data check:', {
+        isTestUser: partnerData.telegramId.startsWith('test_user_'),
+        telegramId: partnerData.telegramId,
+        firstName: partnerData.firstName,
+        username: partnerData.username
+      });
+
       // Записываем нового партнера через Apps Script
       const writeResult = await this.writeToAppsScript('registerPartner', newPartnerData);
       
