@@ -167,13 +167,23 @@ const RegistrationView = ({ telegramUser, onPromoCodeSuccess, onExistingUserLogi
               )}
             </div>
             
-            <div className="text-xs text-gray-500 text-center mt-4">
-              <p>Telegram ID: {displayId}</p>
-              <p>Username: @{displayUsername}</p>
+            <div className="text-xs text-gray-500 text-center mt-4 space-y-1">
+              <div className="bg-gray-50 rounded-lg p-3">
+                <p className="font-medium text-gray-700">Данные пользователя:</p>
+                <p>ID: {displayId}</p>
+                <p>Имя: {displayName}</p>
+                <p>Username: @{displayUsername}</p>
+              </div>
               {window.Telegram?.WebApp ? (
-                <p className="text-green-600 mt-1">✓ Telegram Web App</p>
+                <div className="flex items-center justify-center text-green-600 mt-2">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                  <span>✓ Telegram Web App активен</span>
+                </div>
               ) : (
-                <p className="text-orange-600 mt-1">⚠ Тестовый режим</p>
+                <div className="flex items-center justify-center text-orange-600 mt-2">
+                  <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+                  <span>⚠ Тестовый режим</span>
+                </div>
               )}
             </div>
           </CardContent>
