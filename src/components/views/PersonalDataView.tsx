@@ -33,18 +33,55 @@ const PersonalDataView = ({ onComplete, loading, telegramUser }: PersonalDataVie
       // Заполняем имя из Telegram
       if (telegramUser.first_name) {
         setFirstName(telegramUser.first_name);
+        console.log('Auto-filled first name from Telegram:', telegramUser.first_name);
       }
       
       // Пытаемся получить номер телефона из Telegram Web App
+      let phoneNumber = null;
+      
+      // 1. Проверяем initDataUnsafe
+      if (window.Telegram?.WebApp?.initDataUnsafe?.user?.phone_number) {
+        phoneNumber = window.Telegram.WebApp.initDataUnsafe.user.phone_number;
+        console.log('Phone from initDataUnsafe:', phoneNumber);
+      }
+      
+      // 2. Проверяем initData как альтернативный источник
+      if (!phoneNumber && window.Telegram?.WebApp?.initData) {
+        try {
+          const initData = new URLSearchParams(window.Telegram.WebApp.initData);
+          const userParam = initData.get('user');
+          if (userParam) {
+            const user = JSON.parse(decodeURIComponent(userParam));
+            if (user.phone_number) {
+              phoneNumber = user.phone_number;
+              console.log('Phone from initData:', phoneNumber);
+            }
+          }
+        } catch (error) {
+          console.warn('Error parsing initData for phone:', error);
+        }
+      }
+      
+      // Устанавливаем номер телефона, если найден
+      if (phoneNumber) {
+        setPhone(phoneNumber);
+        console.log('Auto-filled phone from Telegram:', phoneNumber);
+      } else {
+        console.log('No phone number available in Telegram data');
+      }
+      
+      // Логируем все доступные данные Telegram
       if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
         const user = window.Telegram.WebApp.initDataUnsafe.user;
-        console.log('Full Telegram user data:', user);
-        
-        // Если есть номер телефона в данных Telegram
-        if (user.phone_number) {
-          setPhone(user.phone_number);
-          console.log('Auto-filled phone from Telegram:', user.phone_number);
-        }
+        console.log('Full Telegram user data available:', {
+          id: user.id,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          username: user.username,
+          language_code: user.language_code,
+          is_premium: user.is_premium,
+          phone_number: user.phone_number
+        });
       }
     }
   }, [telegramUser]);

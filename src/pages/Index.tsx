@@ -63,24 +63,50 @@ const Index = () => {
 
     // Функция для получения данных пользователя
     const getTelegramUserData = () => {
+      // Проверяем несколько источников данных Telegram
+      let userData = null;
+      
+      // 1. Основной источник - initDataUnsafe
       if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
         const user = window.Telegram.WebApp.initDataUnsafe.user;
-        console.log('✓ Real Telegram user data received:', {
+        console.log('✓ Real Telegram user data from initDataUnsafe:', {
           id: user.id,
           first_name: user.first_name,
           last_name: user.last_name,
           username: user.username,
           language_code: user.language_code,
-          is_premium: user.is_premium
+          is_premium: user.is_premium,
+          phone_number: user.phone_number
         });
         
-        return {
+        userData = {
           id: user.id.toString(),
           first_name: user.first_name,
           username: user.username || undefined
         };
       }
-      return null;
+      
+      // 2. Альтернативный источник - initData (если initDataUnsafe недоступен)
+      if (!userData && window.Telegram?.WebApp?.initData) {
+        try {
+          const initData = new URLSearchParams(window.Telegram.WebApp.initData);
+          const userParam = initData.get('user');
+          if (userParam) {
+            const user = JSON.parse(decodeURIComponent(userParam));
+            console.log('✓ Real Telegram user data from initData:', user);
+            
+            userData = {
+              id: user.id.toString(),
+              first_name: user.first_name,
+              username: user.username || undefined
+            };
+          }
+        } catch (error) {
+          console.warn('Error parsing initData:', error);
+        }
+      }
+      
+      return userData;
     };
 
     // Инициализируем Telegram Web App
