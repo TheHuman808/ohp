@@ -218,11 +218,17 @@ const Index = () => {
   };
 
   const handleNewUserRegistration = () => {
-    console.log('New user registration initiated for Telegram ID:', telegramUser?.id);
+    console.log('=== NEW USER REGISTRATION INITIATED ===');
+    console.log('Telegram ID:', telegramUser?.id);
+    console.log('Current loggedOut state:', loggedOut);
+    console.log('Current currentView state:', currentView);
+    
     setLoggedOut(false);
     setIsExistingUserLogin(false);
     setInviterCode(""); // Очищаем промокод, так как это новый пользователь
     setCurrentView("personalData");
+    
+    console.log('State updated - loggedOut: false, currentView: personalData');
   };
 
   const handleUserNotFoundDialogClose = () => {
@@ -290,6 +296,13 @@ const Index = () => {
   };
 
   const handlePersonalDataComplete = async (personalData: { firstName: string; lastName: string; phone: string; email: string }) => {
+    console.log('=== HANDLE PERSONAL DATA COMPLETE CALLED ===');
+    console.log('Personal data received:', personalData);
+    console.log('Telegram user:', telegramUser);
+    console.log('Current inviter code:', inviterCode);
+    console.log('Current loggedOut state:', loggedOut);
+    console.log('Current currentView state:', currentView);
+    
     if (!telegramUser) {
       console.error('No telegram user data');
       return;
@@ -326,9 +339,20 @@ const Index = () => {
     }
   };
 
+  // Логируем текущее состояние для отладки
+  console.log('=== RENDER STATE DEBUG ===');
+  console.log('loggedOut:', loggedOut);
+  console.log('currentView:', currentView);
+  console.log('isExistingUserLogin:', isExistingUserLogin);
+  console.log('partner:', partner);
+  console.log('partnerLoading:', partnerLoading);
+  console.log('telegramUser:', telegramUser);
+
   // Если пользователь вышел из системы, показываем только регистрацию
   if (loggedOut) {
+    console.log('Rendering logged out state');
     if (currentView === "personalData") {
+      console.log('Rendering PersonalDataView (logged out)');
       return (
         <PersonalDataView
           onComplete={handlePersonalDataComplete}
@@ -338,6 +362,7 @@ const Index = () => {
       );
     }
 
+    console.log('Rendering RegistrationView (logged out)');
     return (
       <RegistrationView
         telegramUser={telegramUser}
@@ -422,6 +447,7 @@ const Index = () => {
 
   // Если мы в процессе регистрации НОВОГО пользователя
   if (currentView === "personalData" && !isExistingUserLogin) {
+    console.log('Rendering PersonalDataView (new user registration)');
     return (
       <PersonalDataView
         onComplete={handlePersonalDataComplete}

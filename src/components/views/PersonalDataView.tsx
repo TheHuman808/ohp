@@ -89,8 +89,11 @@ const PersonalDataView = ({ onComplete, loading, telegramUser }: PersonalDataVie
   const handleSubmit = () => {
     console.log('=== PERSONAL DATA SUBMIT ===');
     console.log('Form data:', { firstName, lastName, phone, email });
+    console.log('Telegram user:', telegramUser);
+    console.log('onComplete function:', onComplete);
 
     if (!firstName.trim() || !lastName.trim() || !phone.trim() || !email.trim()) {
+      console.log('Validation failed - missing fields');
       toast({
         title: "Ошибка",
         description: "Заполните все поля",
@@ -122,12 +125,21 @@ const PersonalDataView = ({ onComplete, loading, telegramUser }: PersonalDataVie
     }
 
     console.log('Validation passed, submitting data...');
+    console.log('Calling onComplete with data:', {
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      phone: phone.trim(),
+      email: email.trim()
+    });
+    
     onComplete({
       firstName: firstName.trim(),
       lastName: lastName.trim(),
       phone: phone.trim(),
       email: email.trim()
     });
+    
+    console.log('onComplete called successfully');
   };
 
   return (
