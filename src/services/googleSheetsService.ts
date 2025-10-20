@@ -475,6 +475,12 @@ class GoogleSheetsService {
 
       console.log('=== SENDING DATA TO GOOGLE SHEETS ===');
       console.log('Partner data to register:', newPartnerData);
+      console.log('Original inviterCode:', partnerData.inviterCode);
+      console.log('Processed inviterCode:', newPartnerData.inviterCode);
+      console.log('inviterCode type:', typeof newPartnerData.inviterCode);
+      console.log('inviterCode === null:', newPartnerData.inviterCode === null);
+      console.log('inviterCode === undefined:', newPartnerData.inviterCode === undefined);
+      console.log('inviterCode === "":', newPartnerData.inviterCode === '');
       console.log('Telegram ID:', partnerData.telegramId);
       console.log('Real Telegram data check:', {
         isTestUser: partnerData.telegramId.startsWith('test_user_'),

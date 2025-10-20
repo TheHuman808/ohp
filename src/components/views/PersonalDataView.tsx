@@ -25,6 +25,34 @@ const PersonalDataView = ({ onComplete, loading, telegramUser }: PersonalDataVie
   const [email, setEmail] = useState("");
   const { toast } = useToast();
 
+  // Функция для форматирования номера телефона
+  const formatPhoneNumber = (value: string) => {
+    // Удаляем все нецифровые символы
+    const numbers = value.replace(/\D/g, '');
+    
+    // Если номер начинается с 7, заменяем на +7
+    if (numbers.startsWith('7')) {
+      return '+' + numbers;
+    }
+    
+    // Если номер начинается с 8, заменяем на +7
+    if (numbers.startsWith('8')) {
+      return '+7' + numbers.slice(1);
+    }
+    
+    // Если номер не начинается с +, добавляем +
+    if (numbers && !value.startsWith('+')) {
+      return '+' + numbers;
+    }
+    
+    return value;
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value);
+    setPhone(formatted);
+  };
+
   // Автозаполнение данных из Telegram
   useEffect(() => {
     if (telegramUser) {
@@ -184,7 +212,7 @@ const PersonalDataView = ({ onComplete, loading, telegramUser }: PersonalDataVie
                 type="tel"
                 placeholder="+7 (999) 123-45-67"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={handlePhoneChange}
                 disabled={loading}
               />
             </div>
